@@ -17,7 +17,9 @@ for i=1:(size(data.textdata,1))
 end
 if vertex_no~=data.data(1,1)+1 || face_no~=data.data(2,1)+1
     disp('error')
-end    
+end  
+
+t1=clock;
 %找到全部边并存储
 edge=zeros(3*size(face,1),2);
 for i=1:size(face,1)
@@ -138,7 +140,7 @@ for i=1:size(vertex,1)
     if point_label(i,1)==0
         for j=1:size(vertex,1)
             if i~=j && point_label(j,1)==1 && is_adjacent(i,j)>0
-                b(x,:)=b(x,:)+2*vertex(i,:)/number_of_adjacency(i,1);
+                b(x,:)=b(x,:)+2*vertex(j,:)/number_of_adjacency(i,1);
             end
         end
         x=x+1;
@@ -148,6 +150,8 @@ end
 %变换后的内部点的位置
 new_position=A\b;
 
+t2=clock;
+
 %将结果输入new_Bunny_head.obj
 fid=fopen(['new_Bunny_head.obj'],'w');
 x=1;
@@ -156,6 +160,7 @@ for i=1:size(vertex,1)
         fprintf(fid,'v %.4f %.4f %.4f\r\n',vertex(i,1),vertex(i,2),vertex(i,3)); 
     else
         fprintf(fid,'v %.4f %.4f %.4f\r\n',new_position(x,1),new_position(x,2),new_position(x,3));
+        vertex(i,:)=new_position(x,:);
         x=x+1;       
     end
 end
@@ -165,4 +170,6 @@ for i=1:size(face,1)
 end
 fclose(fid);
 
+area=Calculate_area(vertex,face);
 
+sprintf('所用时间为%.6f秒,面积为%.6f',etime(t2,t1),area)
